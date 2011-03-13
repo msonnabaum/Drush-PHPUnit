@@ -27,7 +27,11 @@ class contextCase extends Drush_TestCase {
     );
     // Run each path through realpath() since the paths we'll compare against
     // will have already run through drush_load_config_file().
-    foreach ($this->paths as $key => $path) $this->paths[$key] = realpath($path);
+    foreach ($this->paths as $key => $path) {
+      // Don't run through realpath unless the directory exists. Otherwise,
+      // paths that don't exists yet will return false.
+      if (is_dir($path)) $this->paths[$key] = realpath($path);
+    }
 
     $this->paths_delete_candidates = array('user', 'home.drush', 'system', 'drush');
   }
@@ -46,7 +50,6 @@ class contextCase extends Drush_TestCase {
     $this->setUpDrupal($this->env, FALSE);
     $root = $this->sites[$this->env]['root'];
     $site = "$root/sites/$this->env";
-
 
     foreach ($this->paths as $key => $path) {
       // Only declare harmless options as these files hang around until shutdown.
